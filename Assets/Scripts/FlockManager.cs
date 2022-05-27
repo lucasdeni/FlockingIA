@@ -1,0 +1,30 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class FlockManager : MonoBehaviour
+{
+    //Declaração de variáveis
+    public GameObject fishPrefab;
+    public int numFish = 20; //Define o número de peixes
+    public GameObject[] allFish; //Array dos peixes
+    public Vector3 swinLimits = new Vector3(5, 5, 5); //Declara o espaço entre os peixes do cardume
+
+    [Header("Configurações do Cardume")] //Declaração da velocidade máxima e mínima
+    [Range(0.0f, 5.0f)]
+    public float minSpeed; 
+    [Range(0.0f, 5.0f)]
+    public float maxSpeed;
+
+    void Start()
+    {
+        allFish = new GameObject[numFish]; //Coloca o número de peixes de acordo do array
+        for(int i = 0; i < numFish; i++)
+        {
+            Vector3 pos = this.transform.position + new Vector3(Random.Range(-swinLimits.x, swinLimits.x),
+                                                                Random.Range(-swinLimits.y, swinLimits.y),
+                                                                Random.Range(-swinLimits.z, swinLimits.z)); //Define as distâncias dos peixes dentro do cardume
+            allFish[i] = (GameObject)Instantiate(fishPrefab, pos, Quaternion.identity); //Instancia os peixes do cardume de acordo do array
+        }
+    }
+}
