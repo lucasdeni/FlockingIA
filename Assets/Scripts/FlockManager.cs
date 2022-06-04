@@ -15,6 +15,10 @@ public class FlockManager : MonoBehaviour
     public float minSpeed; 
     [Range(0.0f, 5.0f)]
     public float maxSpeed;
+    [Range(1.0f, 50.0f)]
+    public float neighborDistance;
+    [Range(0.5f, 5.0f)]
+    public float rotationSpeed;
 
     void Start()
     {
@@ -25,6 +29,7 @@ public class FlockManager : MonoBehaviour
                                                                 Random.Range(-swinLimits.y, swinLimits.y),
                                                                 Random.Range(-swinLimits.z, swinLimits.z)); //Define as distâncias dos peixes dentro do cardume
             allFish[i] = (GameObject)Instantiate(fishPrefab, pos, Quaternion.identity); //Instancia os peixes do cardume de acordo do array
+            allFish[i].GetComponent<Flock>().myManager = this; //Pega os peixes com o cógido do Flock
         }
     }
 }
