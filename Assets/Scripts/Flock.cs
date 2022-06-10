@@ -6,6 +6,8 @@ public class Flock : MonoBehaviour
 {
     public FlockManager myManager; //Acessa o manager
     float speed; //Declara a velocidade
+    bool turning = false; //Variável que define a o ponto que os peixes irão rodear
+
     void Start()
     {
         speed = Random.Range(myManager.minSpeed, myManager.maxSpeed); //A velocidade acessa a velocidade máxima e mínima
@@ -13,8 +15,41 @@ public class Flock : MonoBehaviour
 
     void Update()
     {
-        ApplyRules();
-        transform.Translate(0, 0, Time.deltaTime * speed); //Movimentação do peixe
+        //Cria os limites para os peixes nadarem
+        Bounds b = new Bounds(myManager.transform.position, myManager.swinLimits * 2);
+        RaycastHit hit = new RaycastHit();
+        Vector3 direction = myManager.transform.position - transform.position;
+
+        if (!b.Contains(transform.position)) //Se o bounds/contains for diferente ele tornará o turning verdadeiro
+        {
+            turning = true;
+            direction = myManager.transform.position - transform.position;
+        }
+        else if (Physics.Raycast(transform.position, this.transform.forward * 50, out hit)) //Cria linha de detecção para direcionar os peixes
+        {
+            turning = true;
+            direction = Vector3.Reflect(this.transform.forward, hit.normal);
+        }
+        else //Deixa o turning falso caso as condições anteriores não acontecerem
+        {
+            turning = false;
+        }
+        if (turning) //Caso o turning aconteça, ativa a rotação do peixe
+        {
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), myManager.rotationSpeed * Time.deltaTime);
+        }
+        else
+        {
+            if(Random.Range(0, 100) < 10) //Altera a velocidade
+            {
+                speed = Random.Range(myManager.minSpeed, myManager.maxSpeed);
+            }
+            if(Random.Range(0, 100) < 20) //Ativa o aplyRules caso aumente a velocidade
+            {
+                ApplyRules();
+            }
+        }
+        transform.Translate(0, 0, Time.deltaTime * speed); //Movimentação do peixe  
     }
 
     void ApplyRules()
@@ -49,10 +84,10 @@ public class Flock : MonoBehaviour
                 }
             }
         }
-        if(groupSize > 0)
+        if(groupSize > 0)   
         {
             //Organiza o centro e a velocidade do cardume de acordo com a quantidade do cardume
-            vcentre = vcentre / groupSize;
+            vcentre = vcentre / groupSize + (myManager.goalPos - this.transform.position);
             speed = gSpeed / groupSize;
             speed = Mathf.Clamp(speed, myManager.minSpeed, myManager.maxSpeed); //Impede que a velocidade vai aumentando infinitamente
 
